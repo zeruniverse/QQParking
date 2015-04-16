@@ -380,7 +380,7 @@ class pmchat_thread(threading.Thread):
 
     
     # con = threading.Condition()
-	autoreply = '最近需要认真学习，不上QQ,有事请邮件联系。接下来由小黄鸡代我与您聊天！'
+    autoreply = '最近需要认真学习，不上QQ,有事请邮件联系。接下来由小黄鸡代我与您聊天！'
     # newIp = ''
 
     def __init__(self, tuin, isSess, group_sig, service_type):
