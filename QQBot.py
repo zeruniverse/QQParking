@@ -22,10 +22,7 @@ PTWebQQ = ''
 APPID = 0
 msgId = 0
 FriendList = {}
-GroupList = {}
 ThreadList = []
-GroupThreadList = []
-GroupWatchList = []
 PSessionID = ''
 Referer = 'http://d.web2.qq.com/proxy.html?v=20130916001&callback=1&id=2'
 SmartQQUrl = 'http://w.qq.com/login.html'
@@ -95,12 +92,13 @@ def msg_handler(msgObj):
         if msgType == 'message' or msgType == 'sess_message':  # 私聊 or 临时对话
             txt = combine_msg(msg['value']['content'])
             tuin = msg['value']['from_uin']
+            msg_id = msg['value']['msg_id2']
             from_account = uin_to_account(tuin)
 
             # print "{0}:{1}".format(from_account, txt)
             targetThread = thread_exist(from_account)
             if targetThread:
-                targetThread.push(txt)
+                targetThread.push(txt, msg_id)
             else:
                 try:
                     service_type = 0
@@ -136,7 +134,6 @@ def msg_handler(msgObj):
             # if txt[0:4] == 'exit':
             #     logging.info(self.Get('http://d.web2.qq.com/channel/logout2?ids=&clientid={0}&psessionid={1}'.format(self.ClientID, self.PSessionID), Referer))
             #     exit(0)
-
 
         # QQ号在另一个地方登陆, 被挤下线
         if msgType == 'kick_message':
@@ -189,15 +186,12 @@ def send_msg(tuin, content, isSess, group_sig, service_type):
 
 def thread_exist(tqq):
     for t in ThreadList:
-        if t.tqq == tqq:
-            return t
-    return False
-
-
-def group_thread_exist(gid):
-    for t in GroupThreadList:
-        if str(t.gid) == str(gid):
-            return t
+        if t.isAlive():
+            if t.tqq == tqq:
+                t.check()
+                return t
+        else:
+            ThreadList.remove(t)
     return False
 
 # -----------------
@@ -390,17 +384,29 @@ class pmchat_thread(threading.Thread):
         self.group_sig=group_sig
         self.service_type=service_type
         self.tqq = uin_to_account(tuin)
+        self.lastcheck = time.time()
+        self.lastseq=0
+        logging.info("私聊线程生成，私聊对象："+str(self.tqq))
         self.reply(self.autoreply)
 
+    def check(self):
+        self.lastcheck = time.time()
     def run(self):
         while 1:
-            time.sleep(1800)
+            time.sleep(300)
+            if time.time() - self.lastcheck > 300:
+                break
 
     def reply(self, content):
         send_msg(self.tuin, str(content), self.isSess, self.group_sig, self.service_type)
         logging.info("Reply to " + str(self.tqq) + ":" + str(content))
 
-    def push(self, ipContent):
+    def push(self, ipContent, seq):
+	    if seq == self.lastseq:
+            return True
+        else:
+            self.lastseq=seq
+
         try:
             logging.info("PM get info from AI: "+ipContent)
             paraf={ 'userid' : str(self.tqq), 'key' : tulingkey, 'info' : ipContent}
@@ -441,6 +447,4 @@ if __name__ == "__main__":
     t_check.setDaemon(True)
     t_check.start()
                 
-    while 1:
-        if not t_check.isAlive():
-            exit(0)
+    t_check.join()
