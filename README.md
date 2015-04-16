@@ -1,4 +1,4 @@
-QQ小黄鸡VPS挂机版
+QQ停放(自动回复)
 =========  
 [![Build Status](https://travis-ci.org/zeruniverse/QQParking.svg)](https://travis-ci.org/zeruniverse/QQParking)    
 ***该项目修改自[QQRobot](https://github.com/zeruniverse/QQRobot)这一项目***，用于挂QQ  
