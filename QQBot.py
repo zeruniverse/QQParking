@@ -164,9 +164,14 @@ def send_msg(tuin, content, isSess, group_sig, service_type):
             ('psessionid', PSessionID)
         )
         rsp = HttpClient_Ist.Post(reqURL, data, Referer)
-        rspp = json.loads(rsp)
-        if rspp['retcode']!= 0:
-            logging.error("reply pmchat error"+str(rspp['retcode']))
+        try:
+            rspp = json.loads(rsp)
+            if rspp['retcode']!= 0:
+                logging.error("reply pmchat error"+str(rspp['retcode']))
+                return False
+            return True
+        except:
+            pass
     else:
         reqURL = "http://d.web2.qq.com/channel/send_sess_msg2"
         data = (
@@ -177,11 +182,15 @@ def send_msg(tuin, content, isSess, group_sig, service_type):
             ('service_type',service_type)
         )
         rsp = HttpClient_Ist.Post(reqURL, data, Referer)
-        rspp = json.loads(rsp)
-        if rspp['retcode']!= 0:
-            logging.error("reply temp pmchat error"+str(rspp['retcode']))
-
-    return rsp
+        try:
+            rspp = json.loads(rsp)
+            if rspp['retcode']!= 0:
+                logging.error("reply temp pmchat error"+str(rspp['retcode']))
+                return False
+            return True
+        except:
+            pass
+    return False
 
 
 def thread_exist(tqq):
@@ -387,19 +396,29 @@ class pmchat_thread(threading.Thread):
         self.lastcheck = time.time()
         self.lastseq=0
         logging.info("私聊线程生成，私聊对象："+str(self.tqq))
-        self.reply(self.autoreply)
+        self.awaymsgsucc = self.reply(self.autoreply)
 
     def check(self):
         self.lastcheck = time.time()
     def run(self):
-        while 1:
-            time.sleep(300)
+        while self.awaymsgsucc:
+            time.sleep(119)
             if time.time() - self.lastcheck > 300:
                 break
 
     def reply(self, content):
-        send_msg(self.tuin, str(content), self.isSess, self.group_sig, self.service_type)
-        logging.info("Reply to " + str(self.tqq) + ":" + str(content))
+        failtimes = 0
+        while not send_msg(self.tuin, str(content), self.isSess, self.group_sig, self.service_type):
+            failtimes = failtimes + 1
+            if failtimes >= 3:
+                break
+            time.sleep(1)
+        if failtimes < 3:
+            logging.info("Reply to " + str(self.tqq) + ":" + str(content))
+            return True
+        else:
+            logging.error("FAIL TO Reply to " + str(self.tqq) + ":" + str(content))
+            return False
 
     def push(self, ipContent, seq):
         if seq == self.lastseq:
