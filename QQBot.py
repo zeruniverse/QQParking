@@ -395,12 +395,14 @@ class pmchat_thread(threading.Thread):
         self.tqq = uin_to_account(tuin)
         self.lastcheck = time.time()
         self.lastseq=0
-        logging.info("私聊线程生成，私聊对象："+str(self.tqq))
-        self.awaymsgsucc = self.reply(self.autoreply)
+        
+        
 
     def check(self):
         self.lastcheck = time.time()
     def run(self):
+        logging.info("私聊线程生成，私聊对象："+str(self.tqq))
+        self.awaymsgsucc = self.reply(self.autoreply)
         while self.awaymsgsucc:
             time.sleep(119)
             if time.time() - self.lastcheck > 300:
