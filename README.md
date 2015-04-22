@@ -7,7 +7,7 @@ QQ停放(自动回复)
 登陆时采用QQ安全中心的二维码做为登陆条件, 不需要在程序里输入QQ号码及QQ密码。
 
 ##如何使用
-+ 从http://www.tuling123.com/openapi/ 申请一个API KEY(免费，5000次/天)， 贴到```QQBot.py```的第34行
++ 从http://www.tuling123.com/openapi/ 申请一个API KEY(免费，5000次/天)， 贴到```QQBot.py```的第31行
 + ```nohup python2 QQBot.py >qbot.log&```
 + ```ls```
 + 若出现v.jpg则用QQ安全中心扫描，否则继续```ls```。
