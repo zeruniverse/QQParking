@@ -410,7 +410,7 @@ class pmchat_thread(threading.Thread):
 
     def reply(self, content):
         failtimes = 0
-        while not send_msg(self.tuin, str(content), self.isSess, self.group_sig, self.service_type):
+        while not send_msg(self.tuin, str(content)+"(此消息来自小黄鸡，非本人)", self.isSess, self.group_sig, self.service_type):
             failtimes = failtimes + 1
             if failtimes >= 3:
                 break
