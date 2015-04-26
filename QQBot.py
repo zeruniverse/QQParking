@@ -447,7 +447,7 @@ class pmchat_thread(threading.Thread):
         else:
             logging.error("FAIL TO Reply to " + str(self.tqq) + ":" + str(content))
             return False
-    def record_important(self, content)
+    def record_important(self, content):
         pattern = re.compile(r'^(?:!|！)(?:!|！) (.+)') 
         match = pattern.match(content)
         try:
