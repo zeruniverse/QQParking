@@ -10,6 +10,8 @@ import time
 import threading
 import logging
 import urllib
+import smtplib
+from email.mime.text import MIMEText
 from HttpClient import HttpClient
 
 reload(sys)
@@ -28,7 +30,16 @@ Referer = 'http://d.web2.qq.com/proxy.html?v=20130916001&callback=1&id=2'
 SmartQQUrl = 'http://w.qq.com/login.html'
 VFWebQQ = ''
 AdminQQ = '0'
-tulingkey='#YOUR KEY HERE#'
+
+#SET YOUR OWN PARAMETERS HERE
+tulingkey = '#YOUR KEY HERE#'
+mail_host="smtp.126.com"
+mail_user="YOUR 126 USER NAME"
+mail_pass="YOUR 126 PASSWORD"
+mail_address="YOUR MAIL ADDRESS"
+mail_postfix="126.com"
+#-----END OF SECTION-------
+
 
 initTime = time.time()
 
@@ -38,7 +49,22 @@ logging.basicConfig(filename='log.log', level=logging.DEBUG, format='%(asctime)s
 # -----------------
 # 方法声明
 # -----------------
-
+def send_mail(qqnum,content):
+    me=mail_user+"<"+mail_address+">"
+    msg = MIMEText('来自'+qqnum+'的消息：'+content)
+    msg['Subject'] = '来自QQ挂机的重要消息[QQ号：'+qqnum+']'
+    msg['From'] = me
+    msg['To'] = mail_address
+    try:
+        s = smtplib.SMTP()
+        s.connect(mail_host)
+        s.login(mail_user, mail_pass)
+        s.sendmail(me, mail_address, msg.as_string())
+        s.close()
+        return True
+    except Exception, e:
+        logging.error(str(e))
+        return False
 
 def pass_time():
     global initTime
@@ -122,7 +148,7 @@ def msg_handler(msgObj):
                     tmpThread.start()
                     ThreadList.append(tmpThread)
                 except Exception, e:
-                    info("error"+str(e))
+                    logging.info("error"+str(e))
 
             # print "{0}:{1}".format(self.FriendList.get(tuin, 0), txt)
 
@@ -383,7 +409,7 @@ class pmchat_thread(threading.Thread):
 
     
     # con = threading.Condition()
-    autoreply = '最近需要认真学习，不上QQ,有事请邮件联系。接下来由小黄鸡代我与您聊天！'
+    autoreply = '最近需要认真学习，不上QQ,有事请邮件联系。接下来由小黄鸡代我与您聊天！使用【!! 内容】格式可以给我留言，（两个感叹号+一个空格+留言内容），请务必在内容部分写上您的名字'
     # newIp = ''
 
     def __init__(self, tuin, isSess, group_sig, service_type):
@@ -421,7 +447,18 @@ class pmchat_thread(threading.Thread):
         else:
             logging.error("FAIL TO Reply to " + str(self.tqq) + ":" + str(content))
             return False
-
+    def record_important(self, content)
+        pattern = re.compile(r'^(?:!|！)(?:!|！) (.+)') 
+        match = pattern.match(content)
+        try:
+            if match:
+                send_mail(self.tqq,str(match.group(2)).decode('UTF-8'))
+                logging.info("record important message "+str(match.group(2)).decode('UTF-8'))
+                self.reply("此消息已记录，主人会尽快回复！")
+                return True
+        except Exception, e:
+            logging.error("ERROR"+str(e))
+        return False
     def push(self, ipContent, seq):
         if seq == self.lastseq:
             return True
@@ -429,6 +466,8 @@ class pmchat_thread(threading.Thread):
             self.lastseq=seq
 
         try:
+            if self.record_important(ipContent):
+                return True
             logging.info("PM get info from AI: "+ipContent)
             paraf={ 'userid' : str(self.tqq), 'key' : tulingkey, 'info' : ipContent}
             info = HttpClient_Ist.Get('http://www.tuling123.com/openapi/api?'+urllib.urlencode(paraf))
