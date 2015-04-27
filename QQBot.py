@@ -11,8 +11,10 @@ import threading
 import logging
 import urllib
 import smtplib
-from email.mime.text import MIMEText
 from HttpClient import HttpClient
+from email.Header import Header
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 reload(sys)
 sys.setdefaultencoding("utf-8")
@@ -32,12 +34,12 @@ VFWebQQ = ''
 AdminQQ = '0'
 
 #SET YOUR OWN PARAMETERS HERE
-tulingkey = '#YOUR KEY HERE#'
-mail_host="smtp.126.com"
-mail_user="YOUR 126 USER NAME"
-mail_pass="YOUR 126 PASSWORD"
-mail_address="YOUR MAIL ADDRESS"
-mail_postfix="126.com"
+tulingkey = '#YOUR KEY HERE'
+mailserver = 'your smtp server, port 25(no encryption). e.g.:smtp.126.com'
+mailsig = 'sender signiture, e.g.:QQParking Notification'
+mailuser = 'your mail address of sender: e.g.:sender@126.com'
+mailpass = 'sender mail password (to login to smtp server)'
+sendtomail = '#send to which mail box. e.g.: recv@gmail.com'
 #-----END OF SECTION-------
 
 
@@ -50,20 +52,24 @@ logging.basicConfig(filename='log.log', level=logging.DEBUG, format='%(asctime)s
 # 方法声明
 # -----------------
 def send_mail(qqnum,content):
-    me=mail_user+"<"+mail_address+">"
-    msg = MIMEText('来自'+qqnum+'的消息：'+content)
-    msg['Subject'] = '来自QQ挂机的重要消息[QQ号：'+qqnum+']'
-    msg['From'] = me
-    msg['To'] = mail_address
     try:
-        s = smtplib.SMTP()
-        s.connect(mail_host)
-        s.login(mail_user, mail_pass)
-        s.sendmail(me, mail_address, msg.as_string())
-        s.close()
+        SUBJECT = '来自QQ：'+str(qqnum)+'的留言'
+        TEXT = content
+        TO = [sendtomail]
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = Header(SUBJECT, 'utf-8')
+        msg['From'] = mailsig+'<'+mailuser+'>'
+        msg['To'] = ', '.join(TO)
+        part = MIMEText(content, 'plain', 'utf-8')
+        msg.attach(part)
+
+        server = smtplib.SMTP(mailserver, 25)
+        server.login(mailuser, mailpass)
+        server.sendmail(mailuser, TO, msg.as_string())
+        server.quit()
         return True
-    except Exception, e:
-        logging.error(str(e))
+    except Exception , e:
+        logging.error("error:"+str(e))
         return False
 
 def pass_time():
@@ -448,13 +454,13 @@ class pmchat_thread(threading.Thread):
             logging.error("FAIL TO Reply to " + str(self.tqq) + ":" + str(content))
             return False
     def record_important(self, content):
-        pattern = re.compile(r'^(?:!|！)(?:!|！) (.+)') 
+        pattern = re.compile(r'^(?:!|！)(!|！) (.+)') 
         match = pattern.match(content)
         try:
             if match:
-                send_mail(self.tqq,str(match.group(2)).decode('UTF-8'))
                 logging.info("record important message "+str(match.group(2)).decode('UTF-8'))
-                self.reply("此消息已记录，主人会尽快回复！")
+                send_mail(str(self.tqq),str(match.group(2)).decode('UTF-8'))
+                self.reply("此消息["+str(match.group(2)).decode('UTF-8')+"]已记录，主人会尽快回复！")
                 return True
         except Exception, e:
             logging.error("ERROR"+str(e))
