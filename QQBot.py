@@ -427,7 +427,7 @@ class pmchat_thread(threading.Thread):
         self.tqq = uin_to_account(tuin)
         self.lastcheck = time.time()
         self.lastseq=0
-        
+        self.lastmail=0
         
 
     def check(self):
@@ -458,6 +458,11 @@ class pmchat_thread(threading.Thread):
         match = pattern.match(content)
         try:
             if match:
+                if time.time() - self.lastmail < 300.0:
+                    logging.info("EMAIL TOO FAST, ABANDON："+content)
+                    self.reply("您留言太频繁了，请5分钟后重试！")
+                    return True
+                self.lastmail = time.time()
                 logging.info("record important message "+str(match.group(2)).decode('UTF-8'))
                 send_mail(str(self.tqq),str(match.group(2)).decode('UTF-8'))
                 self.reply("此消息["+str(match.group(2)).decode('UTF-8')+"]已记录，主人会尽快回复！")
