@@ -51,26 +51,32 @@ logging.basicConfig(filename='log.log', level=logging.DEBUG, format='%(asctime)s
 # -----------------
 # 方法声明
 # -----------------
-def send_mail(qqnum,content):
-    try:
-        SUBJECT = '来自QQ：'+str(qqnum)+'的留言'
-        TEXT = content
-        TO = [sendtomail]
-        msg = MIMEMultipart('alternative')
-        msg['Subject'] = Header(SUBJECT, 'utf-8')
-        msg['From'] = mailsig+'<'+mailuser+'>'
-        msg['To'] = ', '.join(TO)
-        part = MIMEText(content, 'plain', 'utf-8')
-        msg.attach(part)
+class send_mail(threading.Thread):
+    
+    def __init__(self, qqnum, content):
+        threading.Thread.__init__(self)
+        self.qqnum = qqnum
+        self.content = content
 
-        server = smtplib.SMTP(mailserver, 25)
-        server.login(mailuser, mailpass)
-        server.sendmail(mailuser, TO, msg.as_string())
-        server.quit()
-        return True
-    except Exception , e:
-        logging.error("error:"+str(e))
-        return False
+    def run(self):
+        try:
+            SUBJECT = '来自QQ：'+str(self.qqnum)+'的留言'
+            TO = [sendtomail]
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = Header(SUBJECT, 'utf-8')
+            msg['From'] = mailsig+'<'+mailuser+'>'
+            msg['To'] = ', '.join(TO)
+            part = MIMEText(self.content, 'plain', 'utf-8')
+            msg.attach(part)
+
+            server = smtplib.SMTP(mailserver, 25)
+            server.login(mailuser, mailpass)
+            server.sendmail(mailuser, TO, msg.as_string())
+            server.quit()
+            return True
+        except Exception , e:
+            logging.error("error:"+str(e))
+            return False
 
 def pass_time():
     global initTime
@@ -464,7 +470,9 @@ class pmchat_thread(threading.Thread):
                     return True
                 self.lastmail = time.time()
                 logging.info("record important message "+str(match.group(2)).decode('UTF-8'))
-                send_mail(str(self.tqq),str(match.group(2)).decode('UTF-8'))
+                tmpthread = send_mail(str(self.tqq),str(match.group(2)).decode('UTF-8'))
+                tmpthread.start()
+#send_mail(str(self.tqq),str(match.group(2)).decode('UTF-8'))
                 self.reply("此消息["+str(match.group(2)).decode('UTF-8')+"]已记录，主人会尽快回复！")
                 return True
         except Exception, e:
