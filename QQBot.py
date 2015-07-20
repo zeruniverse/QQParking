@@ -422,7 +422,7 @@ class pmchat_thread(threading.Thread):
 
     
     # con = threading.Condition()
-    autoreply = '最近需要认真学习，不上QQ,有事请邮件联系。接下来由小黄鸡代我与您聊天！使用【!! 内容】格式可以给我留言，（两个感叹号+一个空格+留言内容），请务必在内容部分写上您的名字'
+    autoreply = '最近需要认真学习，不上QQ,有事请邮件联系。接下来由小黄鸡代我与您聊天！在聊天时输入【!record】可以开始给我留言，（一个英文感叹号+record），输入此命令并在收到提示后输入留言内容即可'
     # newIp = ''
 
     def __init__(self, tuin, isSess, group_sig, service_type):
@@ -435,6 +435,7 @@ class pmchat_thread(threading.Thread):
         self.lastcheck = time.time()
         self.lastseq=0
         self.lastmail=0
+        self.isrecord=0
         
 
     def check(self):
@@ -461,7 +462,7 @@ class pmchat_thread(threading.Thread):
             logging.error("FAIL TO Reply to " + str(self.tqq) + ":" + str(content))
             return False
     def record_important(self, content):
-        pattern = re.compile(r'^(?:!|！)(!|！) (.+)') 
+        pattern = re.compile(r'^(?:!|！)(record)') 
         match = pattern.match(content)
         try:
             if match:
@@ -470,13 +471,23 @@ class pmchat_thread(threading.Thread):
                     self.reply("您留言太频繁了，请5分钟后重试！")
                     return True
                 self.lastmail = time.time()
-                logging.info("record important message "+str(match.group(2)).decode('UTF-8'))
-                tmpthread = send_mail(str(self.tqq),str(match.group(2)).decode('UTF-8'))
+                logging.info("start recording important message")
+                self.reply("请回复您需要留言的内容，请将所有内容合并在一条回复中（可分行）.留言中请务必写清您的姓名以及联系方式，以便我回复您！")
+                self.isrecord = 1
+                return True
+    def record(self, content)
+        try:
+            if self.isrecord==0:
+                return False
+            if self.isrecord==1:
+                self.isrecord = 0
+                tmpthread = send_mail(str(self.tqq),str(content).decode('UTF-8'))
                 tmpthread.start()
                 MailThreadList.append(tmpthread)
 #send_mail(str(self.tqq),str(match.group(2)).decode('UTF-8'))
-                self.reply("此消息["+str(match.group(2)).decode('UTF-8')+"]已记录，主人会尽快回复！")
+                self.reply("此消息已记录，主人会尽快回复！记录的内容如下\n"+str(content))
                 return True
+            return False
         except Exception, e:
             logging.error("ERROR"+str(e))
         return False
@@ -487,6 +498,8 @@ class pmchat_thread(threading.Thread):
             self.lastseq=seq
 
         try:
+            if self.record(ipContent):
+                return True
             if self.record_important(ipContent):
                 return True
             logging.info("PM get info from AI: "+ipContent)
