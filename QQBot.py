@@ -475,7 +475,7 @@ class pmchat_thread(threading.Thread):
                 self.reply("请回复您需要留言的内容，请将所有内容合并在一条回复中（可分行）.留言中请务必写清您的姓名以及联系方式，以便我回复您！")
                 self.isrecord = 1
                 return True
-    def record(self, content)
+    def record(self, content):
         try:
             if self.isrecord==0:
                 return False
