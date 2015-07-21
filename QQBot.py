@@ -157,9 +157,10 @@ def msg_handler(msgObj):
                             raise ValueError, info
                         info = info['result']
                         group_sig = info['value']
-                    tmpThread = pmchat_thread(tuin,isSess,group_sig,service_type)
+                    tmpThread = pmchat_thread(tuin,isSess,group_sig,service_type,txt,msg_id)
                     tmpThread.start()
                     ThreadList.append(tmpThread)
+                    logging.info("add thread "+str(tmpThread)+" for qq"+str(tuin)+" "+str(uin_to_account(tuin)))
                 except Exception, e:
                     logging.info("error"+str(e))
 
@@ -237,8 +238,10 @@ def thread_exist(tqq):
         if t.isAlive():
             if t.tqq == tqq:
                 t.check()
+                logging.info("find qq:"+str(t.tqq)+" in thread"+str(t))
                 return t
         else:
+            logging.info("REMOVE THREAD:"+str(t)+" for qq"+str(t.tqq))
             ThreadList.remove(t)
     return False
 
@@ -422,10 +425,10 @@ class pmchat_thread(threading.Thread):
 
     
     # con = threading.Condition()
-    autoreply = '最近需要认真学习，不上QQ,有事请邮件联系。接下来由小黄鸡代我与您聊天！在聊天时输入【!record】可以开始给我留言，（一个英文感叹号+record），输入此命令并在收到提示后输入留言内容即可'
+    autoreply = '最近需要认真学习，不上QQ,有事请邮件联系。接下来由小黄鸡代我与您聊天！在聊天时输入【record】可以开始给我留言，(英文单词: record），输入此命令并在收到提示后输入留言内容即可.record前面不能有空格（r需为该消息的第一个字符），举例:\nrecord\n\n(系统提示消息)\n\n（留言内容）\n\n(系统提示：留言已记录)'
     # newIp = ''
 
-    def __init__(self, tuin, isSess, group_sig, service_type):
+    def __init__(self, tuin, isSess, group_sig, service_type,ini_txt,ini_msgid):
         threading.Thread.__init__(self)
         self.tuin = tuin
         self.isSess = isSess
@@ -436,13 +439,15 @@ class pmchat_thread(threading.Thread):
         self.lastseq=0
         self.lastmail=0
         self.isrecord=0
-        
+        self.ini_txt=ini_txt
+        self.ini_msgid=ini_msgid
 
     def check(self):
         self.lastcheck = time.time()
     def run(self):
         logging.info("私聊线程生成，私聊对象："+str(self.tqq))
         self.awaymsgsucc = self.reply(self.autoreply)
+        self.push(self.ini_txt,self.ini_msgid)
         while self.awaymsgsucc:
             time.sleep(119)
             if time.time() - self.lastcheck > 300:
@@ -462,7 +467,7 @@ class pmchat_thread(threading.Thread):
             logging.error("FAIL TO Reply to " + str(self.tqq) + ":" + str(content))
             return False
     def record_important(self, content):
-        pattern = re.compile(r'^(?:!|！)(record)') 
+        pattern = re.compile(r'^(record)') 
         match = pattern.match(content)
         try:
             if match:
