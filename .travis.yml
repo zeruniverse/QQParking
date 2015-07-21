@@ -9,4 +9,5 @@ after_script:
   - sleep 60s
   - cat qbot.log
   - cat log.log
+  - ls
   - killall python
