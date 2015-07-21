@@ -13,7 +13,12 @@ QQ停放(自动回复)
 + ```ls```
 + 若出现v.jpg则用QQ安全中心扫描，否则继续```ls```。
 + ```cat log.log```可以输出运行LOG
-
++ 测试用 API KEY 和邮箱：  
+Tuling Key：c7c5abbc9ec9cad3a63bde71d17e3c2c  
+邮箱： qqparking@126.com   
+SMTP密码： uyyxdrzrrxntidkh  
+邮箱和TULING KEY登陆密码：kidAi%u2^JSP9*.x  
+TULING KEY 注册邮箱：qqparking@126.com  
 
 ##功能
 
