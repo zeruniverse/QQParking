@@ -33,7 +33,7 @@ Referer = 'http://d.web2.qq.com/proxy.html?v=20130916001&callback=1&id=2'
 SmartQQUrl = 'http://w.qq.com/login.html'
 VFWebQQ = ''
 AdminQQ = '0'
-
+MyUIN = 0
 #SET YOUR OWN PARAMETERS HERE
 tulingkey = '#YOUR KEY HERE'
 mailserver = 'your smtp server, port 25(no encryption). e.g.:smtp.126.com'
@@ -56,7 +56,7 @@ def gethash(selfuin, ptwebqq):
     selfuin += ""
     N=[0,0,0,0]
     for T in range(len(ptwebqq)):
-        N[T%4]=N[T%4]^int(ptwebqq[T])
+        N[T%4]=N[T%4]^ord(ptwebqq[T])
     U=["EC","OK"]
     V=[0, 0, 0, 0]
     V[0]=int(selfuin) >> 24 & 255 ^ ord(U[0][0])
@@ -258,36 +258,31 @@ class send_mail(threading.Thread):
         self.content = content
         self.uin = uin
     def run(self):
-        global PTWebQQ,VFWebQQ,Referer
+        global PTWebQQ,VFWebQQ,Referer,MyUIN
         try:
-            reqURL ="http://s.web2.qq.com/api/get_user_friends2"
-            data = (
-            ('r', '{"vfwebqq":{0}, "hash":{1}}'.format(str(VFWebQQ),str(gethash(self.uin,PTWebQQ))))
-            )
-            rsp = HttpClient_Ist.Post(reqURL, data, Referer)
-            rspp = json.loads(rsp)
-            if rspp['retcode']!= 0:
-                logging.error("get nick name error"+str(rspp['retcode']))
-                self.failmsg()
-                raise ValueError, "retcode is not 0"
-            results =json.loads(rspp["result"])
-            markname = json.loads(results["marknames"])
-            userinfo = json.loads(results["info"])
+            logging.info("get user friends")
+            html = HttpClient_Ist.Post('http://s.web2.qq.com/api/get_user_friends2', {
+                    'r': '{{"vfwebqq":"{0}","hash":"{1}"}}'.format(str(VFWebQQ),gethash(str(MyUIN),str(PTWebQQ)))
+                }, Referer)
+            logging.info("hash="+gethash(str(MyUIN),str(PTWebQQ))+"myuin="+str(MyUIN)+"PTWEB="+str(PTWebQQ)+"VFW="+str(VFWebQQ))
+            ret = json.loads(html)
+            if ret['retcode']!= 0:
+                logging.error("get nick name error"+str(ret['retcode']))
+                raise ValueError, ret['retcode']
+            logging.info("get friend list")
             flag=0
-            for t in userinfo:
-                temp=json.loads(t)
-                if temp["uin"]==self.uin:
-                    hisnick=temp["nick"]
+            logging.info("get full list")
+            for t in ret['result']['info']:
+                if str(t["uin"])==str(self.uin):
+                    hisnick=t["nick"]
                     flag=1
                     break
             if flag==0:
                 logging.error("cannot find nick name")
-                self.failmsg()
-                raise ValueError, "cannot find that uin in nick name"
-            for t in markname:
-                temp=json.loads(t)
-                if temp["uin"]==self.uin:
-                    hismark=temp["markname"]
+                raise ValueError, 1
+            for t in ret['result']['marknames']:
+                if str(t["uin"])==str(self.uin):
+                    hismark=t["markname"]
                     flag=2
                     break
             if flag==1:
@@ -305,11 +300,13 @@ class send_mail(threading.Thread):
         
             server = smtplib.SMTP(mailserver, 25)
             server.login(mailuser, mailpass)
+            server.login(mailuser, mailpass)
             server.sendmail(mailuser, TO, msg.as_string())
             server.quit()
             return True
         except Exception , e:
-            logging.error("error:"+str(e))
+            self.failmsg()
+            logging.error("error sending msg"+str(e))
             return False
     def failmsg(self):
         targetThread = thread_exist(self.qqnum)
@@ -325,7 +322,7 @@ class Login(HttpClient):
     MaxTryTime = 5
 
     def __init__(self, vpath, qq=0):
-        global APPID, AdminQQ, PTWebQQ, VFWebQQ, PSessionID, msgId
+        global APPID, AdminQQ, PTWebQQ, VFWebQQ, PSessionID, msgId, MyUIN
         self.VPath = vpath  # QRCode保存路径
         AdminQQ = int(qq)
         logging.critical("正在获取登陆页面")
@@ -403,14 +400,14 @@ class Login(HttpClient):
 
         VFWebQQ = ret['result']['vfwebqq']
         PSessionID = ret['result']['psessionid']
+        MyUIN = ret['result']['uin']
 
         logging.critical("QQ号：{0} 登陆成功, 用户名：{1}".format(ret['result']['uin'], tmpUserName))
         logging.info('Login success')
         logging.critical("登陆二维码用时" + pass_time() + "秒")
 
         msgId = int(random.uniform(20000, 50000))
-
-
+        
 class check_msg(threading.Thread):
     # try:
     #   pass
@@ -590,7 +587,6 @@ class pmchat_thread(threading.Thread):
             if info["code"] in [40001, 40003, 40004]:
                 self.reply("我今天累了，不聊了")
                 logging.warning("Reach max AI call")
-            elif info["code"] in [40002, 40005, 40006, 40007]:
                 self.reply("我遇到了一点问题，请稍后@我")
                 logging.warning("PM AI return error, code:"+str(info["code"]))
             else:
