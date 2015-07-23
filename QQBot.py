@@ -52,32 +52,32 @@ logging.basicConfig(filename='log.log', level=logging.DEBUG, format='%(asctime)s
 # -----------------
 # 方法声明
 # -----------------
-class send_mail(threading.Thread):
-    
-    def __init__(self, qqnum, content):
-        threading.Thread.__init__(self)
-        self.qqnum = qqnum
-        self.content = content
-
-    def run(self):
-        try:
-            SUBJECT = '来自QQ：'+str(self.qqnum)+'的留言'
-            TO = [sendtomail]
-            msg = MIMEMultipart('alternative')
-            msg['Subject'] = Header(SUBJECT, 'utf-8')
-            msg['From'] = mailsig+'<'+mailuser+'>'
-            msg['To'] = ', '.join(TO)
-            part = MIMEText(self.content, 'plain', 'utf-8')
-            msg.attach(part)
-
-            server = smtplib.SMTP(mailserver, 25)
-            server.login(mailuser, mailpass)
-            server.sendmail(mailuser, TO, msg.as_string())
-            server.quit()
-            return True
-        except Exception , e:
-            logging.error("error:"+str(e))
-            return False
+def gethash(selfuin, ptwebqq):
+    selfuin += ""
+    N=[0,0,0,0]
+    for T in range(len(ptwebqq)):
+        N[T%4]=N[T%4]^int(ptwebqq[T])
+    U=["EC","OK"]
+    V=[0, 0, 0, 0]
+    V[0]=int(selfuin) >> 24 & 255 ^ ord(U[0][0])
+    V[1]=int(selfuin) >> 16 & 255 ^ ord(U[0][1])
+    V[2]=int(selfuin) >>  8 & 255 ^ ord(U[1][0])
+    V[3]=int(selfuin)       & 255 ^ ord(U[1][1])
+    U=[0,0,0,0,0,0,0,0]
+    U[0]=N[0]
+    U[1]=V[0]
+    U[2]=N[1]
+    U[3]=V[1]
+    U[4]=N[2]
+    U[5]=V[2]
+    U[6]=N[3]
+    U[7]=V[3]  
+    N=["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]
+    V=""
+    for T in range(len(U)):
+        V+= N[ U[T]>>4 & 15]
+        V+= N[ U[T]    & 15]
+    return V
 
 def pass_time():
     global initTime
@@ -101,7 +101,6 @@ def getReValue(html, rex, er, ex):
 
 def date_to_millis(d):
     return int(time.mktime(d.timetuple())) * 1000
-
 
 # 查询QQ号，通常首次用时0.2s，以后基本不耗时
 def uin_to_account(tuin):
@@ -149,7 +148,7 @@ def msg_handler(msgObj):
                         service_type = msg['value']['service_type']
                         myid = msg['value']['id'] 
                         ts = time.time()
-                        while ts < 1000000000000:
+    raise ValueError                    while ts < 1000000000000:
                             ts = ts * 10
                         ts = int(ts)
                         info = json.loads(HttpClient_Ist.Get('http://d.web2.qq.com/channel/get_c2cmsg_sig2?id={0}&to_uin={1}&clientid={2}&psessionid={3}&service_type={4}&t={5}'.format(myid, tuin, ClientID, PSessionID, service_type, ts), Referer))
@@ -250,6 +249,72 @@ def thread_cleanup():
             ThreadList.remove(t)
     return True
 
+class send_mail(threading.Thread):
+    
+    def __init__(self, qqnum, uin, content):
+        threading.Thread.__init__(self)
+        self.qqnum = qqnum
+        self.content = content
+        self.uin = uin
+    def run(self):
+        global PTWebQQ,VFWebQQ,Referer
+        try:
+            reqURL ="http://s.web2.qq.com/api/get_user_friends2"
+            data = (
+            ('r', '{"vfwebqq":{0}, "hash":{1}}'.format(str(VFWebQQ),str(gethash(self.uin,PTWebQQ))))
+            )
+            rsp = HttpClient_Ist.Post(reqURL, data, Referer)
+            rspp = json.loads(rsp)
+            if rspp['retcode']!= 0:
+                logging.error("get nick name error"+str(rspp['retcode']))
+                self.failmsg()
+                raise ValueError, "retcode is not 0"
+            results =json.loads(rspp["result"])
+            markname = json.loads(results["marknames"])
+            userinfo = json.loads(results["info"])
+            flag=0
+            for t in userinfo:
+                temp=json.loads(t)
+                if temp["uin"]==self.uin:
+                    hisnick=temp["nick"]
+                    flag=1
+                    break
+            if flag==0:
+                logging.error("cannot find nick name")
+                self.failmsg()
+                raise ValueError, "cannot find that uin in nick name"
+            for t in markname:
+                temp=json.loads(t)
+                if temp["uin"]==self.uin:
+                    hismark=temp["markname"]
+                    flag=2
+                    break
+            if flag==1:
+                subinfo="昵称："+str(hisnick)
+            else:
+                subinfo=str(hismark)+"(昵称："+str(hisnick)+")"
+            SUBJECT = '来自 '+subinfo+'[QQ号：'+str(self.qqnum)+']的留言'
+            TO = [sendtomail]
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = Header(SUBJECT, 'utf-8')
+            msg['From'] = mailsig+'<'+mailuser+'>'
+            msg['To'] = ', '.join(TO)
+            part = MIMEText(self.content, 'plain', 'utf-8')
+            msg.attach(part)
+        
+            server = smtplib.SMTP(mailserver, 25)
+            server.login(mailuser, mailpass)
+            server.sendmail(mailuser, TO, msg.as_string())
+            server.quit()
+            return True
+        except Exception , e:
+            logging.error("error:"+str(e))
+            return False
+    def failmsg(self):
+        targetThread = thread_exist(self.qqnum)
+        if targetThread:
+            targetThread.reply("抱歉，留言发送失败，留言内容为:\n"+str(self.content))
+        return True
 # -----------------
 # 类声明
 # -----------------
@@ -495,7 +560,7 @@ class pmchat_thread(threading.Thread):
                 return False
             if self.isrecord==1:
                 self.isrecord = 0
-                tmpthread = send_mail(str(self.tqq),str(content).decode('UTF-8'))
+                tmpthread = send_mail(str(self.tqq),str(self.tuin),str(content).decode('UTF-8'))
                 tmpthread.start()
                 MailThreadList.append(tmpthread)
 #send_mail(str(self.tqq),str(match.group(2)).decode('UTF-8'))
