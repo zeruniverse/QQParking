@@ -135,6 +135,7 @@ def msg_handler(msgObj):
             from_account = uin_to_account(tuin)
 
             # print "{0}:{1}".format(from_account, txt)
+            thread_cleanup()    
             targetThread = thread_exist(from_account)
             if targetThread:
                 targetThread.push(txt, msg_id)
@@ -240,10 +241,14 @@ def thread_exist(tqq):
                 t.check()
                 logging.info("find qq:"+str(t.tqq)+" in thread"+str(t))
                 return t
-        else:
+    return False
+
+def thread_cleanup():
+    for t in ThreadList:
+        if not t.isAlive():
             logging.info("REMOVE THREAD:"+str(t)+" for qq"+str(t.tqq))
             ThreadList.remove(t)
-    return False
+    return True
 
 # -----------------
 # 类声明
