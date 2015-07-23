@@ -148,7 +148,8 @@ def msg_handler(msgObj):
                         service_type = msg['value']['service_type']
                         myid = msg['value']['id'] 
                         ts = time.time()
-    raise ValueError                    while ts < 1000000000000:
+                        raise ValueError
+                        while ts < 1000000000000:
                             ts = ts * 10
                         ts = int(ts)
                         info = json.loads(HttpClient_Ist.Get('http://d.web2.qq.com/channel/get_c2cmsg_sig2?id={0}&to_uin={1}&clientid={2}&psessionid={3}&service_type={4}&t={5}'.format(myid, tuin, ClientID, PSessionID, service_type, ts), Referer))
