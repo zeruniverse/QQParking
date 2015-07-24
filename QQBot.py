@@ -692,7 +692,7 @@ class pmchat_thread(threading.Thread):
                     return True
                 self.lastmail = time.time()
                 logging.info("start recording important message")
-                self.reply("请回复您需要留言的内容，请将所有内容合并在一条回复中（可分行）.留言中请务必写清您的姓名以及联系方式，以便我回复您！")
+                self.reply("请回复您需要留言的内容，请将所有内容合并在一条回复中（可分行）。您的昵称与备注名将自动被记录，您可以留下电话号码以便我回复您！")
                 self.isrecord = 1
                 return True
             return False
@@ -759,7 +759,7 @@ class pmchat_thread(threading.Thread):
 if __name__ == "__main__":
     vpath = './v.jpg'
     qq = 0
-    print "QQParking 3.3.1 By Jeffery"
+    print "QQParking 5.0 By Jeffery"
     print "Log files will be recorded to log.txt in the same folder as this executable file"
     print "Please write your email address to receive notification into myemail.txt"
     print "This program can normally run stably for 1.5-2.5 days. Then QQ may ask to login again. When that happens, this program will exit due to fatal error and you should run it again.\n"
@@ -774,6 +774,8 @@ if __name__ == "__main__":
         qqLogin = Login(vpath, qq)
     except Exception, e:
         logging.error(str(e))
+        print "Fatal error: Unable to get correct configuration or fail to login.\nPlease restart this program. If you don't close the window, the program ends automatically in 15 seconds"
+        time.sleep(15)
         os._exit()
     t_check = check_msg()
     t_check.setDaemon(True)
