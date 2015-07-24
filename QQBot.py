@@ -94,7 +94,7 @@ def msg_handler(msgObj):
             tuin = msg['value']['from_uin']
             msg_id = msg['value']['msg_id2']
             from_account = uin_to_account(tuin)
-
+            thread_cleanup()
             # print "{0}:{1}".format(from_account, txt)
             targetThread = thread_exist(from_account)
             if targetThread:
@@ -192,15 +192,17 @@ def send_msg(tuin, content, isSess, group_sig, service_type):
             pass
     return False
 
-
+def thread_cleanup():
+    for t in ThreadList:
+        if not t.isAlive():
+            ThreadList.remove(t)
+    return True
 def thread_exist(tqq):
     for t in ThreadList:
         if t.isAlive():
             if t.tqq == tqq:
                 t.check()
                 return t
-        else:
-            ThreadList.remove(t)
     return False
 
 # -----------------
@@ -286,6 +288,7 @@ class Login(HttpClient):
                 logging.critical("登录失败，正在重试")
 
         if ret['retcode'] != 0:
+            raise ValueError, "Login Retcode="+ret['retcode']
             return
 
         VFWebQQ = ret['result']['vfwebqq']
@@ -465,9 +468,8 @@ if __name__ == "__main__":
         qqLogin = Login(vpath, qq)
     except Exception, e:
         logging.error(str(e))
-    
+        os._exit()
     t_check = check_msg()
     t_check.setDaemon(True)
     t_check.start()
-                
     t_check.join()
