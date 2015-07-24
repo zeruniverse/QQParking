@@ -350,7 +350,7 @@ class send_sess_mail(threading.Thread):
             self.failmsg()
             logging.error("error sending msg"+str(e))
             return False
-    def get_display_name(self)
+    def get_display_name(self):
         global GroupList, DiscussionList
         #群临时对话
         flag=0
