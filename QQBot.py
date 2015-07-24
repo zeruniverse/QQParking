@@ -12,7 +12,7 @@ import logging
 import urllib
 import smtplib
 from HttpClient import HttpClient
-from email.Header import Header
+from email.header import Header
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -446,6 +446,7 @@ class Login(HttpClient):
         mailuser=f.readline().replace("\n","").replace("\r","")
         mailpass=f.readline().replace("\n","").replace("\r","")
         f.close()
+        logging.info("配置： 邮件服务器："+str(mailserver)+"；签名："+str(mailsig)+"；邮件用户名："+str(mailuser)+"；SMTP密码："+str(mailpass))
         logging.critical("正在获取登陆页面")
         self.initUrl = getReValue(self.Get(SmartQQUrl), r'\.src = "(.+?)"', 'Get Login Url Error.', 1)
         html = self.Get(self.initUrl + '0')
@@ -758,6 +759,11 @@ class pmchat_thread(threading.Thread):
 if __name__ == "__main__":
     vpath = './v.jpg'
     qq = 0
+    print "QQParking 3.3.1 By Jeffery"
+    print "Log files will be recorded to log.txt in the same folder as this executable file"
+    print "Please write your email address to receive notification into myemail.txt"
+    print "This program can normally run stably for 1.5-2.5 days. Then QQ may ask to login again. When that happens, this program will exit due to fatal error and you should run it again.\n"
+    print "Please wait... Downloading QR Code for login\n"
     if len(sys.argv) > 1:
         vpath = sys.argv[1]
     if len(sys.argv) > 2:
