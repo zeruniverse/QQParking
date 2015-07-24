@@ -331,7 +331,7 @@ class send_sess_mail(threading.Thread):
             if self.service_type == 0:
                 SUBJECT = SUBJECT + "(来自群："+gname+"[群号："+str(gcode)+"])"
             else:
-                SUBJECT = SUBJECT + "(来自讨论组："+gname")"
+                SUBJECT = SUBJECT + "(来自讨论组："+gname+")"
             TO = [sendtomail]
             msg = MIMEMultipart('alternative')
             msg['Subject'] = Header(SUBJECT, 'utf-8')
