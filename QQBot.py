@@ -368,7 +368,7 @@ class send_sess_mail(threading.Thread):
             while ts < 1000000000000:
                 ts = ts * 10
             ts = int(ts)
-            html = self.Get('http://s.web2.qq.com/api/get_group_info_ext2?gcode={0}&vfwebqq={1}&t={2}'.format(group_code, VFWebQQ,ts), Referer)
+            html = HttpClient_Ist.Get('http://s.web2.qq.com/api/get_group_info_ext2?gcode={0}&vfwebqq={1}&t={2}'.format(group_code, VFWebQQ,ts), Referer)
             ret = json.loads(html)
             if ret['retcode']!= 0:
                 raise ValueError, "retcode error when getting group detail info: retcode="+ret['retcode']
@@ -403,7 +403,7 @@ class send_sess_mail(threading.Thread):
             while ts < 1000000000000:
                 ts = ts * 10
             ts = int(ts)
-            html = self.Get('http://d.web2.qq.com/channel/get_discu_info?did={0}&vfwebqq={1}&clientid={2}&psessionid={3}&t={4}'.format(self.sess_group_id, VFWebQQ, ClientID,PSessionID,ts), Referer)
+            html = HttpClient_Ist.Get('http://d.web2.qq.com/channel/get_discu_info?did={0}&vfwebqq={1}&clientid={2}&psessionid={3}&t={4}'.format(self.sess_group_id, VFWebQQ, ClientID,PSessionID,ts), Referer)
             ret = json.loads(html)
             if ret['retcode']!= 0:
                 raise ValueError, "retcode error when getting discussion group detail info: retcode="+ret['retcode']
