@@ -329,7 +329,7 @@ class send_sess_mail(threading.Thread):
             subinfo,gcode,gname = self.get_display_name()
             SUBJECT = '来自（临时对话） '+subinfo+'[QQ号：'+str(self.qqnum)+']的留言'
             if self.service_type == 0:
-                SUBJECT = SUBJECT + "(来自群："+gname"[群号："+str(gcode)"])"
+                SUBJECT = SUBJECT + "(来自群："+gname+"[群号："+str(gcode)+"])"
             else:
                 SUBJECT = SUBJECT + "(来自讨论组："+gname")"
             TO = [sendtomail]
