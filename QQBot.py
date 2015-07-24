@@ -19,6 +19,15 @@ from email.mime.text import MIMEText
 reload(sys)
 sys.setdefaultencoding("utf-8")
 
+#SET YOUR OWN PARAMETERS HERE
+tulingkey = '#YOUR KEY HERE'
+mailserver = 'your smtp server, port 25(no encryption). e.g.:smtp.126.com'
+mailsig = 'sender signiture, e.g.:QQParking Notification'
+mailuser = 'your mail address of sender: e.g.:sender@126.com'
+mailpass = 'sender mail password (to login to smtp server)'
+sendtomail = '#send to which mail box. e.g.: recv@gmail.com'
+#-----END OF SECTION-------
+
 HttpClient_Ist = HttpClient()
 
 ClientID = int(random.uniform(111111, 888888))
@@ -33,16 +42,15 @@ Referer = 'http://d.web2.qq.com/proxy.html?v=20130916001&callback=1&id=2'
 SmartQQUrl = 'http://w.qq.com/login.html'
 VFWebQQ = ''
 AdminQQ = '0'
-MyUIN = 0
-#SET YOUR OWN PARAMETERS HERE
-tulingkey = '#YOUR KEY HERE'
-mailserver = 'your smtp server, port 25(no encryption). e.g.:smtp.126.com'
-mailsig = 'sender signiture, e.g.:QQParking Notification'
-mailuser = 'your mail address of sender: e.g.:sender@126.com'
-mailpass = 'sender mail password (to login to smtp server)'
-sendtomail = '#send to which mail box. e.g.: recv@gmail.com'
-#-----END OF SECTION-------
 
+#My QQ
+MyUIN = 0
+
+#Put UserNameList Here to avoid multiple requests
+MarkNameList = []
+NickNameList = []
+GroupList = []
+DiscussionList = []
 
 initTime = time.time()
 
@@ -52,6 +60,8 @@ logging.basicConfig(filename='log.log', level=logging.DEBUG, format='%(asctime)s
 # -----------------
 # 方法声明
 # -----------------
+
+#Encryption Algorithm Used By QQ
 def gethash(selfuin, ptwebqq):
     selfuin += ""
     N=[0,0,0,0]
@@ -143,12 +153,12 @@ def msg_handler(msgObj):
                     service_type = 0
                     isSess = 0
                     group_sig = ''
+                    myid = ''
                     if msgType == 'sess_message':
                         isSess = 1
                         service_type = msg['value']['service_type']
                         myid = msg['value']['id'] 
                         ts = time.time()
-                        raise ValueError
                         while ts < 1000000000000:
                             ts = ts * 10
                         ts = int(ts)
@@ -158,7 +168,7 @@ def msg_handler(msgObj):
                             raise ValueError, info
                         info = info['result']
                         group_sig = info['value']
-                    tmpThread = pmchat_thread(tuin,isSess,group_sig,service_type,txt,msg_id)
+                    tmpThread = pmchat_thread(tuin,isSess,group_sig,service_type,txt,msg_id,myid)
                     tmpThread.start()
                     ThreadList.append(tmpThread)
                     logging.info("add thread "+str(tmpThread)+" for qq"+str(tuin)+" "+str(uin_to_account(tuin)))
@@ -239,15 +249,16 @@ def thread_exist(tqq):
         if t.isAlive():
             if t.tqq == tqq:
                 t.check()
-                logging.info("find qq:"+str(t.tqq)+" in thread"+str(t))
                 return t
     return False
 
 def thread_cleanup():
     for t in ThreadList:
         if not t.isAlive():
-            logging.info("REMOVE THREAD:"+str(t)+" for qq"+str(t.tqq))
             ThreadList.remove(t)
+    for t in MailThreadList:
+        if not t.isAlive():
+            MailThreadList.remove(t)
     return True
 
 class send_mail(threading.Thread):
@@ -258,29 +269,17 @@ class send_mail(threading.Thread):
         self.content = content
         self.uin = uin
     def run(self):
-        global PTWebQQ,VFWebQQ,Referer,MyUIN
+        global PTWebQQ,VFWebQQ,Referer,MyUIN,MarkNameList,NickNameList
         try:
-            logging.info("get user friends")
-            html = HttpClient_Ist.Post('http://s.web2.qq.com/api/get_user_friends2', {
-                    'r': '{{"vfwebqq":"{0}","hash":"{1}"}}'.format(str(VFWebQQ),gethash(str(MyUIN),str(PTWebQQ)))
-                }, Referer)
-            logging.info("hash="+gethash(str(MyUIN),str(PTWebQQ))+"myuin="+str(MyUIN)+"PTWEB="+str(PTWebQQ)+"VFW="+str(VFWebQQ))
-            ret = json.loads(html)
-            if ret['retcode']!= 0:
-                logging.error("get nick name error"+str(ret['retcode']))
-                raise ValueError, ret['retcode']
-            logging.info("get friend list")
             flag=0
-            logging.info("get full list")
-            for t in ret['result']['info']:
+            for t in NickNameList:
                 if str(t["uin"])==str(self.uin):
                     hisnick=t["nick"]
                     flag=1
                     break
             if flag==0:
-                logging.error("cannot find nick name")
-                raise ValueError, 1
-            for t in ret['result']['marknames']:
+                raise ValueError, "Unable to find nick name"
+            for t in MarkNameList:
                 if str(t["uin"])==str(self.uin):
                     hismark=t["markname"]
                     flag=2
@@ -309,7 +308,119 @@ class send_mail(threading.Thread):
             logging.error("error sending msg"+str(e))
             return False
     def failmsg(self):
-        targetThread = thread_exist(self.qqnum)
+        targetThread = thread_exist(int(self.qqnum))
+        logging.info("邮件发送失败提示，push进线程："+str(targetThread))
+        if targetThread:
+            targetThread.reply("抱歉，留言发送失败，留言内容为:\n"+str(self.content))
+        return True
+        
+class send_sess_mail(threading.Thread):
+    
+    def __init__(self, qqnum, uin, content, sess_group_id, service_type):
+        threading.Thread.__init__(self)
+        self.qqnum = qqnum
+        self.content = content
+        self.uin = uin
+        self.sess_group_id = sess_group_id
+        self.service_type = service_type
+    def run(self):
+        global PTWebQQ,VFWebQQ,Referer,MyUIN,MarkNameList,NickNameList
+        try:
+            subinfo,gcode,gname = self.get_display_name()
+            SUBJECT = '来自（临时对话） '+subinfo+'[QQ号：'+str(self.qqnum)+']的留言'
+            if self.service_type == 0:
+                SUBJECT = SUBJECT + "(来自群："+gname"[群号："+str(gcode)"])"
+            else:
+                SUBJECT = SUBJECT + "(来自讨论组："+gname")"
+            TO = [sendtomail]
+            msg = MIMEMultipart('alternative')
+            msg['Subject'] = Header(SUBJECT, 'utf-8')
+            msg['From'] = mailsig+'<'+mailuser+'>'
+            msg['To'] = ', '.join(TO)
+            part = MIMEText(self.content, 'plain', 'utf-8')
+            msg.attach(part)
+        
+            server = smtplib.SMTP(mailserver, 25)
+            server.login(mailuser, mailpass)
+            server.login(mailuser, mailpass)
+            server.sendmail(mailuser, TO, msg.as_string())
+            server.quit()
+            return True
+        except Exception , e:
+            self.failmsg()
+            logging.error("error sending msg"+str(e))
+            return False
+    def get_display_name(self)
+        global GroupList, DiscussionList
+        #群临时对话
+        flag=0
+        if self.service_type == 0:
+            for t in GroupList:
+                if str(t["gid"])==str(self.sess_group_id):
+                    group_name=t["name"]
+                    group_code=t["code"]
+                    flag=1
+                    break
+            if flag==0:
+                raise ValueError, "Unable to find corresponding group"
+            
+            ts = time.time()
+            while ts < 1000000000000:
+                ts = ts * 10
+            ts = int(ts)
+            html = self.Get('http://s.web2.qq.com/api/get_group_info_ext2?gcode={0}&vfwebqq={1}&t={2}'.format(group_code, VFWebQQ,ts), Referer)
+            ret = json.loads(html)
+            if ret['retcode']!= 0:
+                raise ValueError, "retcode error when getting group detail info: retcode="+ret['retcode']
+            flag=0
+            for t in ret['result']['minfo']:
+                if str(t["uin"])==str(self.uin):
+                    hisnick=t["nick"]
+                    flag=1
+                    break
+            if flag==0:
+                raise ValueError, "Unable to find nick name in sess from_group"
+            for t in ret['result']['cards']:
+                if str(t["muin"])==str(self.uin):
+                    hismark=t["card"]
+                    flag=2
+                    break
+            if flag==1:
+                subinfo="昵称："+str(hisnick)
+            else:
+                subinfo=str(hismark)+"(昵称："+str(hisnick)+")"
+            return (subinfo,group_code,group_name)
+        else:
+            for t in DiscussionList:
+                if str(t["did"])==str(self.sess_group_id):
+                    group_name=t["name"]
+                    flag=1
+                    break
+            if flag==0:
+                raise ValueError, "Unable to find corresponding discussion group"
+            
+            ts = time.time()
+            while ts < 1000000000000:
+                ts = ts * 10
+            ts = int(ts)
+            html = self.Get('http://d.web2.qq.com/channel/get_discu_info?did={0}&vfwebqq={1}&clientid={2}&psessionid={3}&t={4}'.format(self.sess_group_id, VFWebQQ, ClientID,PSessionID,ts), Referer)
+            ret = json.loads(html)
+            if ret['retcode']!= 0:
+                raise ValueError, "retcode error when getting discussion group detail info: retcode="+ret['retcode']
+            flag=0
+            for t in ret['result']['mem_info']:
+                if str(t["uin"])==str(self.uin):
+                    hisnick=t["nick"]
+                    flag=1
+                    break
+            if flag==0:
+                raise ValueError, "Unable to find nick name in sess from_discussion_group"
+            subinfo="昵称："+str(hisnick)
+            return (subinfo,self.sess_group_id,group_name)
+            
+    def failmsg(self):
+        targetThread = thread_exist(int(self.qqnum))
+        logging.info("邮件发送失败提示，push进线程："+str(targetThread))
         if targetThread:
             targetThread.reply("抱歉，留言发送失败，留言内容为:\n"+str(self.content))
         return True
@@ -322,7 +433,7 @@ class Login(HttpClient):
     MaxTryTime = 5
 
     def __init__(self, vpath, qq=0):
-        global APPID, AdminQQ, PTWebQQ, VFWebQQ, PSessionID, msgId, MyUIN
+        global APPID, AdminQQ, PTWebQQ, VFWebQQ, PSessionID, msgId, MyUIN,MarkNameList,NickNameList,GroupList,DiscussionList
         self.VPath = vpath  # QRCode保存路径
         AdminQQ = int(qq)
         logging.critical("正在获取登陆页面")
@@ -396,17 +507,40 @@ class Login(HttpClient):
                 logging.critical("登录失败，正在重试")
 
         if ret['retcode'] != 0:
+            raise ValueError, "RetCode = "+ret['retcode']
             return
 
         VFWebQQ = ret['result']['vfwebqq']
         PSessionID = ret['result']['psessionid']
         MyUIN = ret['result']['uin']
-
         logging.critical("QQ号：{0} 登陆成功, 用户名：{1}".format(ret['result']['uin'], tmpUserName))
         logging.info('Login success')
         logging.critical("登陆二维码用时" + pass_time() + "秒")
-
         msgId = int(random.uniform(20000, 50000))
+        html = self.Post('http://s.web2.qq.com/api/get_user_friends2', {
+                'r': '{{"vfwebqq":"{0}","hash":"{1}"}}'.format(str(VFWebQQ),gethash(str(MyUIN),str(PTWebQQ)))
+            }, Referer)
+        ret = json.loads(html)
+        if ret['retcode']!= 0:
+            raise ValueError, "retcode error when getting friends list: retcode="+ret['retcode']
+        NickNameList = ret['result']['info']
+        MarkNameList = ret['result']['marknames']
+        ts = time.time()
+        while ts < 1000000000000:
+            ts = ts * 10
+        ts = int(ts)
+        html = self.Get('http://s.web2.qq.com/api/get_discus_list?clientid={0}&psessionid={1}&vfwebqq={2}&t={3}'.format(ClientID, PSessionID, VFWebQQ,ts), Referer)
+        ret = json.loads(html)
+        if ret['retcode']!= 0:
+            raise ValueError, "retcode error when getting discussion group list: retcode="+ret['retcode']
+        DiscussionList = ret['result']['dnamelist']
+        html = self.Post('http://s.web2.qq.com/api/get_group_name_list_mask2', {
+                'r': '{{"vfwebqq":"{0}","hash":"{1}"}}'.format(str(VFWebQQ),gethash(str(MyUIN),str(PTWebQQ)))
+            }, Referer)
+        ret = json.loads(html)
+        if ret['retcode']!= 0:
+            raise ValueError, "retcode error when getting group list: retcode="+ret['retcode']
+        GroupList = ret['result']['gnamelist']
         
 class check_msg(threading.Thread):
     # try:
@@ -496,7 +630,7 @@ class pmchat_thread(threading.Thread):
     autoreply = '最近需要认真学习，不上QQ,有事请邮件联系。接下来由小黄鸡代我与您聊天！在聊天时输入【record】可以开始给我留言，(英文单词: record），输入此命令并在收到提示后输入留言内容即可.record前面不能有空格（r需为该消息的第一个字符），举例:\nrecord\n\n(系统提示消息)\n\n（留言内容）\n\n(系统提示：留言已记录)'
     # newIp = ''
 
-    def __init__(self, tuin, isSess, group_sig, service_type,ini_txt,ini_msgid):
+    def __init__(self, tuin, isSess, group_sig, service_type,ini_txt,ini_msgid,myid):
         threading.Thread.__init__(self)
         self.tuin = tuin
         self.isSess = isSess
@@ -509,7 +643,8 @@ class pmchat_thread(threading.Thread):
         self.isrecord=0
         self.ini_txt=ini_txt
         self.ini_msgid=ini_msgid
-
+        self.sess_group_id = myid
+        self.replystreak = 0
     def check(self):
         self.lastcheck = time.time()
     def run(self):
@@ -558,7 +693,10 @@ class pmchat_thread(threading.Thread):
                 return False
             if self.isrecord==1:
                 self.isrecord = 0
-                tmpthread = send_mail(str(self.tqq),str(self.tuin),str(content).decode('UTF-8'))
+                if self.isSess == 0:
+                    tmpthread = send_mail(str(self.tqq),str(self.tuin),str(content).decode('UTF-8'))
+                else:
+                    tmpthread = send_sess_mail(str(self.tqq),str(self.tuin),str(content).decode('UTF-8'),str(self.sess_group_id),self.service_type)
                 tmpthread.start()
                 MailThreadList.append(tmpthread)
 #send_mail(str(self.tqq),str(match.group(2)).decode('UTF-8'))
@@ -578,6 +716,11 @@ class pmchat_thread(threading.Thread):
             if self.record(ipContent):
                 return True
             if self.record_important(ipContent):
+                return True
+            self.replystreak = self.replystreak + 1
+            #防止机器人对聊
+            if self.replystreak>30:
+                self.replystreak = 0
                 return True
             logging.info("PM get info from AI: "+ipContent)
             paraf={ 'userid' : str(self.tqq), 'key' : tulingkey, 'info' : ipContent}
@@ -614,9 +757,8 @@ if __name__ == "__main__":
         qqLogin = Login(vpath, qq)
     except Exception, e:
         logging.error(str(e))
-    
+        os._exit()
     t_check = check_msg()
     t_check.setDaemon(True)
     t_check.start()
-                
     t_check.join()
