@@ -45,7 +45,7 @@ AdminQQ = '0'
 
 #My QQ
 MyUIN = 0
-
+QQUserName = ''
 #Put UserNameList Here to avoid multiple requests
 MarkNameList = []
 NickNameList = []
@@ -108,7 +108,26 @@ def getReValue(html, rex, er, ex):
 
     return v.group(1)
 
-
+def sendfailmail():
+    global QQUserName, MyUIN
+    try:
+        SUBJECT = 'QQ挂机下线提醒： '+str(QQUserName)+'[QQ号：'+str(MyUIN)+']'
+        TO = [sendtomail]
+        msg = MIMEMultipart('alternative')
+        msg['Subject'] = Header(SUBJECT, 'utf-8')
+        msg['From'] = mailsig+'<'+mailuser+'>'
+        msg['To'] = ', '.join(TO)
+        part = MIMEText("Fatal error occured. Please restart the program and login again!", 'plain', 'utf-8')
+        msg.attach(part)
+        server = smtplib.SMTP(mailserver, 25)
+        server.login(mailuser, mailpass)
+        server.login(mailuser, mailpass)
+        server.sendmail(mailuser, TO, msg.as_string())
+        server.quit()
+        return True
+    except Exception , e:
+        logging.error("发送程序错误邮件失败:"+str(e))
+        return False
 def date_to_millis(d):
     return int(time.mktime(d.timetuple())) * 1000
 
@@ -433,7 +452,7 @@ class Login(HttpClient):
     MaxTryTime = 5
 
     def __init__(self, vpath, qq=0):
-        global APPID, AdminQQ, PTWebQQ, VFWebQQ, PSessionID, msgId, MyUIN,MarkNameList,NickNameList,GroupList,DiscussionList
+        global APPID, AdminQQ, PTWebQQ, VFWebQQ, PSessionID, msgId, MyUIN,MarkNameList,NickNameList,GroupList,DiscussionList,QQUserName
         self.VPath = vpath  # QRCode保存路径
         AdminQQ = int(qq)
         logging.critical("正在获取登陆页面")
@@ -515,6 +534,7 @@ class Login(HttpClient):
         MyUIN = ret['result']['uin']
         logging.critical("QQ号：{0} 登陆成功, 用户名：{1}".format(ret['result']['uin'], tmpUserName))
         logging.info('Login success')
+        QQUserName = tmpUserName
         logging.critical("登陆二维码用时" + pass_time() + "秒")
         msgId = int(random.uniform(20000, 50000))
         html = self.Post('http://s.web2.qq.com/api/get_user_friends2', {
@@ -758,7 +778,15 @@ if __name__ == "__main__":
     except Exception, e:
         logging.error(str(e))
         os._exit()
-    t_check = check_msg()
-    t_check.setDaemon(True)
-    t_check.start()
-    t_check.join()
+    try:
+        t_check = check_msg()
+        t_check.setDaemon(True)
+        t_check.start()
+        t_check.join()
+    except:
+        pass
+    errortime=0
+    while errortime<5:
+        errortime=errortime+1
+        if sendfailmail():
+            break
