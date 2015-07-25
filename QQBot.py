@@ -700,7 +700,7 @@ class pmchat_thread(threading.Thread):
                     return True
                 self.lastmail = time.time()
                 logging.info("start recording important message")
-                self.reply("请回复您需要留言的内容，请将所有内容合并在一条回复中（可分行）。您的昵称与备注名将自动被记录，您可以留下电话号码以便我回复您！")
+                self.reply("请回复您需要留言的内容，请将所有内容合并在一条回复中（可分行）。您的昵称与备注名将自动被记录，您可以留下联系方式以便我回复您！否则回复将发往您的QQ邮箱 （QQ号+@qq.com）")
                 self.isrecord = 1
                 return True
             return False
