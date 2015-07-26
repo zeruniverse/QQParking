@@ -313,6 +313,7 @@ class send_mail(threading.Thread):
             msg['Subject'] = Header(SUBJECT, 'utf-8')
             msg['From'] = mailsig+'<'+mailuser+'>'
             msg['To'] = ', '.join(TO)
+            msg.add_header('reply-to', str(self.qqnum)+'@qq.com')
             part = MIMEText(self.content, 'plain', 'utf-8')
             msg.attach(part)
         
@@ -356,6 +357,7 @@ class send_sess_mail(threading.Thread):
             msg['Subject'] = Header(SUBJECT, 'utf-8')
             msg['From'] = mailsig+'<'+mailuser+'>'
             msg['To'] = ', '.join(TO)
+            msg.add_header('reply-to', str(self.qqnum)+'@qq.com')
             part = MIMEText(self.content, 'plain', 'utf-8')
             msg.attach(part)
         
