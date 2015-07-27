@@ -288,7 +288,7 @@ class send_mail(threading.Thread):
         self.content = content
         self.uin = uin
     def run(self):
-        global PTWebQQ,VFWebQQ,Referer,MyUIN,MarkNameList,NickNameList
+        global MarkNameList,NickNameList
         try:
             flag=0
             for t in NickNameList:
@@ -307,6 +307,19 @@ class send_mail(threading.Thread):
                 subinfo="昵称："+str(hisnick)
             else:
                 subinfo=str(hismark)+"(昵称："+str(hisnick)+")"
+            flag=0
+            while not self.smtpmail(subinfo):
+                flag = flag + 1
+                if flag > 3:
+                    raise ValueError, flag
+                    break
+            return True
+        except Exception , e:
+            self.failmsg()
+            logging.error("error sending msg for :"+str(e)+" times (send fail reply now)")
+            return False
+    def smtpmail(self,subinfo):
+        try:
             SUBJECT = '来自 '+subinfo+'[QQ号：'+str(self.qqnum)+']的留言'
             TO = [sendtomail]
             msg = MIMEMultipart('alternative')
@@ -315,17 +328,15 @@ class send_mail(threading.Thread):
             msg['To'] = ', '.join(TO)
             msg.add_header('reply-to', str(self.qqnum)+'@qq.com')
             part = MIMEText(self.content, 'plain', 'utf-8')
-            msg.attach(part)
-        
+            msg.attach(part)        
             server = smtplib.SMTP(mailserver, 25)
             server.login(mailuser, mailpass)
             server.login(mailuser, mailpass)
             server.sendmail(mailuser, TO, msg.as_string())
             server.quit()
             return True
-        except Exception , e:
-            self.failmsg()
-            logging.error("error sending msg"+str(e))
+        except Exception, e:
+            logging.error("error sending msg:"+str(e))
             return False
     def failmsg(self):
         targetThread = thread_exist(int(self.qqnum))
@@ -344,7 +355,6 @@ class send_sess_mail(threading.Thread):
         self.sess_group_id = sess_group_id
         self.service_type = service_type
     def run(self):
-        global PTWebQQ,VFWebQQ,Referer,MyUIN,MarkNameList,NickNameList
         try:
             subinfo,gcode,gname = self.get_display_name()
             SUBJECT = '来自（临时对话） '+subinfo+'[QQ号：'+str(self.qqnum)+']的留言'
@@ -352,6 +362,19 @@ class send_sess_mail(threading.Thread):
                 SUBJECT = SUBJECT + "(来自群："+gname+"[群号："+str(gcode)+"])"
             else:
                 SUBJECT = SUBJECT + "(来自讨论组："+gname+")"
+            flag=1
+            while not self.smtpmail(SUBJECT):
+                flag = flag + 1
+                if flag > 3:
+                    raise ValueError, flag
+                    break
+            return True
+        except Exception , e:
+            self.failmsg()
+            logging.error("error sending msg for :"+str(e)+" times (send fail reply now)")
+            return False
+    def smtpmail(self,SUBJECT):
+        try:
             TO = [sendtomail]
             msg = MIMEMultipart('alternative')
             msg['Subject'] = Header(SUBJECT, 'utf-8')
@@ -359,17 +382,15 @@ class send_sess_mail(threading.Thread):
             msg['To'] = ', '.join(TO)
             msg.add_header('reply-to', str(self.qqnum)+'@qq.com')
             part = MIMEText(self.content, 'plain', 'utf-8')
-            msg.attach(part)
-        
+            msg.attach(part)        
             server = smtplib.SMTP(mailserver, 25)
             server.login(mailuser, mailpass)
             server.login(mailuser, mailpass)
             server.sendmail(mailuser, TO, msg.as_string())
             server.quit()
             return True
-        except Exception , e:
-            self.failmsg()
-            logging.error("error sending msg"+str(e))
+        except Exception, e:
+            logging.error("error sending msg:"+str(e))
             return False
     def get_display_name(self):
         global GroupList, DiscussionList
@@ -675,7 +696,7 @@ class pmchat_thread(threading.Thread):
         self.push(self.ini_txt,self.ini_msgid)
         while self.awaymsgsucc:
             time.sleep(119)
-            if time.time() - self.lastcheck > 300:
+            if time.time() - self.lastcheck > 800:
                 break
 
     def reply(self, content):
@@ -721,7 +742,6 @@ class pmchat_thread(threading.Thread):
                     tmpthread = send_sess_mail(str(self.tqq),str(self.tuin),str(content).decode('UTF-8'),str(self.sess_group_id),self.service_type)
                 tmpthread.start()
                 MailThreadList.append(tmpthread)
-#send_mail(str(self.tqq),str(match.group(2)).decode('UTF-8'))
                 self.reply("此消息已记录，主人会尽快回复！记录的内容如下\n"+str(content))
                 return True
             return False
