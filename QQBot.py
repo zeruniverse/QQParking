@@ -742,6 +742,7 @@ class pmchat_thread(threading.Thread):
             if info["code"] in [40001, 40003, 40004]:
                 self.reply("我今天累了，不聊了")
                 logging.warning("Reach max AI call")
+            elif info["code"] in [40002, 40005, 40006, 40007]:
                 self.reply("我遇到了一点问题，请稍后@我")
                 logging.warning("PM AI return error, code:"+str(info["code"]))
             else:
