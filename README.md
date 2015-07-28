@@ -5,7 +5,12 @@ QQ停放(自动回复)
 当收到私聊或临时对话时先回复离开信息，接下来由AI与用户聊天。记录用户发送的留言并邮件提醒  
 点[这里](https://github.com/zeruniverse/QQParking/releases/tag/2.3)可以下载不带邮件功能的版本。  
 登陆时采用QQ安全中心的二维码做为登陆条件, 不需要在程序里输入QQ号码及QQ密码。  
-
+  
+**RELEASE**  
+5.0.1挂机版本 (带预配置文件)：[点击下载](https://github.com/zeruniverse/QQParking/releases/tag/5.0.1)  
+5.0.1 WINDOWS EXE 32位: [点击下载](https://github.com/zeruniverse/QQParking/releases/tag/w5.0.1)  
+无邮件提醒功能版本 (带预配置文件，可直接运行)： [点击下载](https://github.com/zeruniverse/QQParking/releases/tag/2.3)  
+  
 ##如何使用
 + 从http://www.tuling123.com/openapi/ 申请一个API KEY(免费，5000次/天)
 + 将QQBot.py的第36-43行改为你的参数。接收邮箱请使用你的常用邮箱，发送邮箱建议网易126邮箱（已测试可用）,输入用户名，密码及对应SMTP服务器  
