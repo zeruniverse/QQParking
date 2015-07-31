@@ -6,7 +6,19 @@ QQ停放(自动回复)
 点[这里](https://github.com/zeruniverse/QQParking/releases/tag/2.3)可以下载不带邮件功能的版本。  
 登陆时采用QQ安全中心的二维码做为登陆条件, 不需要在程序里输入QQ号码及QQ密码。  
   
-**RELEASE**  
+##运行截图  
+<img width="533" alt="capture" src="https://cloud.githubusercontent.com/assets/4648756/9015609/ee46e016-377e-11e5-83c7-9346d811a664.PNG">  
+<img width="534" alt="capture1" src="https://cloud.githubusercontent.com/assets/4648756/9015624/fd96946c-377e-11e5-980d-a50f6aa5b663.PNG">  
+执行上一步后收到留言邮件提示：  
+<img width="526" alt="capture3" src="https://cloud.githubusercontent.com/assets/4648756/9015639/129bc832-377f-11e5-90d0-f73a7f0a2c33.PNG">  
+小黄鸡代聊：  
+<img width="538" alt="capture4" src="https://cloud.githubusercontent.com/assets/4648756/9015657/37f5db90-377f-11e5-82dc-310b53fe17e4.PNG">  
+QQ下线需要重新登录提醒：  
+<img width="649" alt="capture5" src="https://cloud.githubusercontent.com/assets/4648756/9015668/4a1612cc-377f-11e5-9903-07bbebfc9a0d.PNG">  
+（对应错误）  
+<img width="483" alt="capture6" src="https://cloud.githubusercontent.com/assets/4648756/9015680/624ed478-377f-11e5-893a-3dea56d8efe9.PNG">  
+  
+##RELEASE    
 5.0.1挂机版本 (带预配置文件)：[点击下载](https://github.com/zeruniverse/QQParking/releases/tag/5.0.1)  
 5.0.1 WINDOWS EXE 32位: [点击下载](https://github.com/zeruniverse/QQParking/releases/tag/w5.0.1)  
 无邮件提醒功能版本 (带预配置文件，可直接运行)： [点击下载](https://github.com/zeruniverse/QQParking/releases/tag/2.3)  
@@ -36,7 +48,7 @@ TULING KEY 注册邮箱：qqparking@126.com
 + 留言失败提示，若留言邮件发送失败，则QQ上提醒对方重试  
 
 + 下线提示功能，若程序遇到错误退出（如QQ要求重新登录），则发送提醒邮件  
-
+  
 
 
 
