@@ -5,6 +5,7 @@ QQ停放(自动回复)
 当收到私聊或临时对话时先回复离开信息，接下来由AI与用户聊天。记录用户发送的留言并邮件提醒  
 点[这里](https://github.com/zeruniverse/QQParking/releases/tag/2.3)可以下载不带邮件功能的版本。  
 登陆时采用QQ安全中心的二维码做为登陆条件, 不需要在程序里输入QQ号码及QQ密码。  
+已测试运行环境：Python 2.6 & Python 2.7  
   
 This project is a chatting robot in QQ, implemented in Python. The purpose of this project is keeping your QQ account online 24*7. This robot will ignore all group chatting messages and reply to each private chatting message. The robot will first tell people chatting with your account that you're not online and an AI robot will chat with them on behalf of you. If they want to leave a message to you, they can send [record] command in chatting window and the next message will be forwarded to your electronic mailbox. The welcome message will be sent at the first time the robot reply to a certain account and every following message will end up with (This message is sent from an robot).  
 
