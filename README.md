@@ -1,11 +1,11 @@
 QQ停放(自动回复)
 =========  
-[![Build Status](https://travis-ci.org/zeruniverse/QQParking.svg)](https://travis-ci.org/zeruniverse/QQParking)    
+[![Build Status](https://travis-ci.org/zeruniverse/QQParking.svg)](https://travis-ci.org/zeruniverse/QQParking) ![Environment](https://img.shields.io/badge/python-2.6, 2.7-blue.svg)
+![License](https://img.shields.io/github/license/zeruniverse/QQParking.svg)      
 ***该项目修改自[QQRobot](https://github.com/zeruniverse/QQRobot)这一项目***，用于挂QQ  
 当收到私聊或临时对话时先回复离开信息，接下来由AI与用户聊天。记录用户发送的留言并邮件提醒  
 点[这里](https://github.com/zeruniverse/QQParking/releases/tag/2.3)可以下载不带邮件功能的版本。  
-登陆时采用QQ安全中心的二维码做为登陆条件, 不需要在程序里输入QQ号码及QQ密码。  
-已测试运行环境：Python 2.6 & Python 2.7  
+登陆时采用QQ安全中心的二维码做为登陆条件, 不需要在程序里输入QQ号码及QQ密码。   
   
 **请帮忙分析Android QQ协议**：此项目现已稳定，在更新协议前不会有大更新。希望有人能跟我一起搞手机QQ协议，SmartQQ协议稳定性不是很理想。  
   
