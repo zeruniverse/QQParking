@@ -789,7 +789,7 @@ class pmchat_thread(threading.Thread):
 # -----------------
 
 if __name__ == "__main__":
-    vpath = './v.jpg'
+    vpath = './v.png'
     qq = 0
     if len(sys.argv) > 1:
         vpath = sys.argv[1]
@@ -801,7 +801,7 @@ if __name__ == "__main__":
         qqLogin = Login(vpath, qq)
     except Exception, e:
         logging.error(str(e))
-        os._exit()
+        os._exit(1)
     try:
         t_check = check_msg()
         t_check.setDaemon(True)
