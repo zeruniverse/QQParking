@@ -36,7 +36,7 @@ QQ下线需要重新登录提醒：
 + 如果您使用126邮箱，请在126邮箱-设置中开启smtp，并将SMTP专用密码（不是登陆密码）输入程序。开启smtp需要手机验证
 + ```nohup python2 QQBot.py >qbot.log&```
 + ```ls```
-+ 若出现v.jpg则用QQ安全中心扫描，否则继续```ls```。
++ 若出现v.png则用QQ安全中心扫描，否则继续```ls```。
 + ```cat log.log```可以输出运行LOG
 + 测试用 API KEY 和邮箱：  
 Tuling Key：c7c5abbc9ec9cad3a63bde71d17e3c2c  
