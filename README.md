@@ -26,7 +26,7 @@ QQ下线需要重新登录提醒：
 <img width="483" alt="capture6" src="https://cloud.githubusercontent.com/assets/4648756/9015680/624ed478-377f-11e5-893a-3dea56d8efe9.PNG">  
   
 ##RELEASE    
-5.0.1挂机版本 (带预配置文件)：[点击下载](https://github.com/zeruniverse/QQParking/releases/tag/5.0.1)  
+5.0.3挂机版本 (带预配置文件)：[点击下载](https://github.com/zeruniverse/QQParking/releases/tag/5.0.3)  
 5.0.1 WINDOWS EXE 32位: [点击下载](https://github.com/zeruniverse/QQParking/releases/tag/w5.0.1)  
 无邮件提醒功能版本 (带预配置文件，可直接运行)： [点击下载](https://github.com/zeruniverse/QQParking/releases/tag/2.3)  
   
