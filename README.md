@@ -1,6 +1,9 @@
 QQ停放(自动回复)
 =========  
-[![Build Status](https://travis-ci.org/zeruniverse/QQParking.svg)](https://travis-ci.org/zeruniverse/QQParking) ![Environment](https://img.shields.io/badge/python-2.6, 2.7-blue.svg)
+[![Build Status](https://travis-ci.org/zeruniverse/QQParking.svg)](https://travis-ci.org/zeruniverse/QQParking)
+[![Code Health](https://landscape.io/github/zeruniverse/QQParking/master/landscape.svg?style=flat)](https://landscape.io/github/zeruniverse/QQParking/master)
+![Release](https://img.shields.io/github/release/zeruniverse/QQParking.svg)
+![Environment](https://img.shields.io/badge/python-2.6, 2.7-blue.svg)
 ![License](https://img.shields.io/github/license/zeruniverse/QQParking.svg)      
 ***该项目修改自[QQRobot](https://github.com/zeruniverse/QQRobot)这一项目***，用于挂QQ  
 当收到私聊或临时对话时先回复离开信息，接下来由AI与用户聊天。记录用户发送的留言并邮件提醒  
