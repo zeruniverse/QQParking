@@ -1,5 +1,8 @@
 QQ停放(自动回复)
 =========  
+This branch is out of date. If you still want to use this branch, you might need to modify the protocol since QQ changes its protocol as time goes by. You can go to master branch for protocol information.  
+此分支已停止维护，这意味着协议将不会继续随QQ更新。如果您仍需要使用，请自行根据master分支修改协议，否则可能遇到错误。    
+  
 [![Build Status](https://travis-ci.org/zeruniverse/QQParking.svg)](https://travis-ci.org/zeruniverse/QQParking)    
 ***该项目修改自[QQRobot](https://github.com/zeruniverse/QQRobot)这一项目***，用于挂QQ  
 当收到私聊或临时对话时先回复离开信息，接下来由AI与用户聊天。
