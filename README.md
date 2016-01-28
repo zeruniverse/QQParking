@@ -29,7 +29,7 @@ QQ下线需要重新登录提醒：
 <img width="483" alt="capture6" src="https://cloud.githubusercontent.com/assets/4648756/9015680/624ed478-377f-11e5-893a-3dea56d8efe9.PNG">  
   
 ##RELEASE    
-5.0.31挂机版本 (带预配置文件)：[点击下载](https://github.com/zeruniverse/QQParking/releases/tag/5.0.31)  
+5.1挂机版本 (带预配置文件)：[点击下载](https://github.com/zeruniverse/QQParking/releases/tag/5.1)  
 ~~5.0.1 WINDOWS EXE 32位: [点击下载](https://github.com/zeruniverse/QQParking/releases/tag/w5.0.1)~~  
 ~~无邮件提醒功能版本 (带预配置文件，可直接运行)： [点击下载](https://github.com/zeruniverse/QQParking/releases/tag/2.3)~~  
   
@@ -65,7 +65,7 @@ TULING KEY 注册邮箱：qqparking@126.com
 
 ##其它
 
-+ 如果需要不带邮件提示功能的版本，请下载这个: https://github.com/zeruniverse/QQParking/releases/tag/2.3  
++ ~~如果需要不带邮件提示功能的版本，请下载这个: https://github.com/zeruniverse/QQParking/releases/tag/2.3~~  
 
 + 如果需要能够支持群聊的小黄鸡，请下载这个: https://github.com/zeruniverse/QQRobot
 
