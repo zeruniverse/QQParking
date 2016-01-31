@@ -594,7 +594,7 @@ class Login(HttpClient):
             }, PReferer)
         ret = json.loads(html)
         if ret['retcode']!= 0:
-            raise ValueError, "retcode error when getting group list: retcode="+ret['retcode']
+            raise ValueError, "retcode error when getting group list: retcode="+str(ret['retcode'])
         GroupList = ret['result']['gnamelist']
         
 class check_msg(threading.Thread):
