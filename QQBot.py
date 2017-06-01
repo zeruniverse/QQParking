@@ -84,7 +84,7 @@ def gethash(selfuin, ptwebqq):
     U[4]=N[2]
     U[5]=V[2]
     U[6]=N[3]
-    U[7]=V[3]  
+    U[7]=V[3]
     N=["0","1","2","3","4","5","6","7","8","9","A","B","C","D","E","F"]
     V=""
     for T in range(len(U)):
@@ -161,7 +161,7 @@ def msg_handler(msgObj):
             msg_id = msg['value']['msg_id']
 
             # print "{0}:{1}".format(from_account, txt)
-            thread_cleanup()    
+            thread_cleanup()
             targetThread = thread_exist(tuin)
             if targetThread:
                 targetThread.push(txt, msg_id)
@@ -174,7 +174,7 @@ def msg_handler(msgObj):
                     if msgType == 'sess_message':
                         isSess = 1
                         service_type = msg['value']['service_type']
-                        myid = msg['value']['id'] 
+                        myid = msg['value']['id']
                         info = json.loads(HttpClient_Ist.Get('http://d1.web2.qq.com/channel/get_c2cmsg_sig2?id={0}&to_uin={1}&clientid={2}&psessionid={3}&service_type={4}&t={5}'.format(myid, tuin, ClientID, PSessionID, service_type, get_ts()), Referer))
                         logging.info("Get group sig:" + str(info))
                         if info['retcode'] != 0:
@@ -275,7 +275,7 @@ def thread_cleanup():
     return True
 
 class send_mail(threading.Thread):
-    
+
     def __init__(self, uin, content):
         threading.Thread.__init__(self)
         self.content = content
@@ -320,7 +320,7 @@ class send_mail(threading.Thread):
             msg['From'] = mailsig+'<'+mailuser+'>'
             msg['To'] = ', '.join(TO)
             part = MIMEText(self.content, 'plain', 'utf-8')
-            msg.attach(part)        
+            msg.attach(part)
             server = smtplib.SMTP(mailserver, 25)
             server.login(mailuser, mailpass)
             server.login(mailuser, mailpass)
@@ -336,9 +336,9 @@ class send_mail(threading.Thread):
         if targetThread:
             targetThread.reply("抱歉，留言发送失败，留言内容为:\n"+str(self.content))
         return True
-        
+
 class send_sess_mail(threading.Thread):
-    
+
     def __init__(self, uin, content, sess_group_id, service_type):
         threading.Thread.__init__(self)
         self.content = content
@@ -372,7 +372,7 @@ class send_sess_mail(threading.Thread):
             msg['From'] = mailsig+'<'+mailuser+'>'
             msg['To'] = ', '.join(TO)
             part = MIMEText(self.content, 'plain', 'utf-8')
-            msg.attach(part)        
+            msg.attach(part)
             server = smtplib.SMTP(mailserver, 25)
             server.login(mailuser, mailpass)
             server.login(mailuser, mailpass)
@@ -395,7 +395,7 @@ class send_sess_mail(threading.Thread):
                     break
             if flag==0:
                 raise ValueError, "Unable to find corresponding group"
-            
+
             html = HttpClient_Ist.Get('http://s.web2.qq.com/api/get_group_info_ext2?gcode={0}&vfwebqq={1}&t={2}'.format(group_code, VFWebQQ,get_ts()), Referer)
             ret = json.loads(html)
             if ret['retcode']!= 0:
@@ -426,7 +426,7 @@ class send_sess_mail(threading.Thread):
                     break
             if flag==0:
                 raise ValueError, "Unable to find corresponding discussion group"
-            
+
             html = HttpClient_Ist.Get('http://d1.web2.qq.com/channel/get_discu_info?did={0}&vfwebqq={1}&clientid={2}&psessionid={3}&t={4}'.format(self.sess_group_id, VFWebQQ, ClientID,PSessionID,get_ts()), Referer)
             ret = json.loads(html)
             if ret['retcode']!= 0:
@@ -441,7 +441,7 @@ class send_sess_mail(threading.Thread):
                 raise ValueError, "Unable to find nick name in sess from_discussion_group"
             subinfo="昵称："+str(hisnick)
             return (subinfo,self.sess_group_id,group_name)
-            
+
     def failmsg(self):
         targetThread = thread_exist(int(self.uin))
         logging.info("邮件发送失败提示，push进线程："+str(targetThread))
@@ -545,7 +545,7 @@ class Login(HttpClient):
         logging.critical("登陆二维码用时" + pass_time() + "秒")
         QQUserName = tmpUserName
         msgId = int(random.uniform(20000, 50000))
-        
+
         self.Get('http://d1.web2.qq.com/channel/get_online_buddies2?vfwebqq={0}&clientid={1}&psessionid={2}&t={3}'.format(VFWebQQ,ClientID,PSessionID,get_ts()),Referer)
 
         html = self.Post('http://s.web2.qq.com/api/get_user_friends2', {
@@ -568,7 +568,7 @@ class Login(HttpClient):
         if ret['retcode']!= 0:
             raise ValueError, "retcode error when getting group list: retcode="+str(ret['retcode'])
         GroupList = ret['result']['gnamelist']
-        
+
 class check_msg(threading.Thread):
     # try:
     #   pass
@@ -631,7 +631,7 @@ class check_msg(threading.Thread):
                     msg_handler(ret['result'])
                 E = 0
                 continue
-            
+
             # Exit on abnormal retcode
             E += 1
             HttpClient_Ist.Get('http://d1.web2.qq.com/channel/get_online_buddies2?vfwebqq={0}&clientid={1}&psessionid={2}&t={3}'.format(VFWebQQ,ClientID,PSessionID,get_ts()),Referer)
@@ -657,7 +657,7 @@ class check_msg(threading.Thread):
 
 class pmchat_thread(threading.Thread):
 
-    
+
     # con = threading.Condition()
     autoreply = '最近需要认真学习，不上QQ,有事请邮件联系。接下来由小黄鸡代我与您聊天！在聊天时输入【record】可以开始给我留言，(英文单词: record），输入此命令并在收到提示后输入留言内容即可.record前面不能有空格（r需为该消息的第一个字符）'
     # newIp = ''
@@ -701,7 +701,7 @@ class pmchat_thread(threading.Thread):
             logging.error("FAIL TO Reply to UIN " + str(self.tuin) + ":" + str(content))
             return False
     def record_important(self, content):
-        pattern = re.compile(r'^(record)') 
+        pattern = re.compile(r'^(record)')
         match = pattern.match(content)
         try:
             if match:
@@ -753,7 +753,7 @@ class pmchat_thread(threading.Thread):
                 self.replystreak = 0
                 return True
             logging.info("PM get info from AI: "+ipContent)
-            paraf={ 'userid' : str(self.tqq), 'key' : tulingkey, 'info' : ipContent}
+            paraf={ 'userid' : str(self.tuin), 'key' : tulingkey, 'info' : ipContent}
             info = HttpClient_Ist.Get('http://www.tuling123.com/openapi/api?'+urllib.urlencode(paraf))
             logging.info("AI REPLY:"+str(info))
             info = json.loads(info)
