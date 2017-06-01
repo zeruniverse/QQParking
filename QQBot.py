@@ -34,13 +34,9 @@ ClientID = 53999199
 PTWebQQ = ''
 APPID = 0
 msgId = 0
-FriendList = {}
 ThreadList = []
 MailThreadList = []
 PSessionID = ''
-Referer = 'http://d1.web2.qq.com/proxy.html?v=20151105001&callback=1&id=2'
-PReferer = 'http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1'
-SmartQQUrl = 'http://w.qq.com/login.html'
 
 Referer = 'http://s.web2.qq.com/proxy.html?v=20130916001&callback=1&id=1'
 httpsReferer = 'https://d1.web2.qq.com/cfproxy.html?v=20151105001&callback=1'
