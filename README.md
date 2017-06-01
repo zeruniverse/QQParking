@@ -3,11 +3,11 @@ QQ停放(自动回复)
 [![Build Status](https://travis-ci.org/zeruniverse/QQParking.svg)](https://travis-ci.org/zeruniverse/QQParking)
 [![Code Health](https://landscape.io/github/zeruniverse/QQParking/master/landscape.svg?style=flat)](https://landscape.io/github/zeruniverse/QQParking/master)
 ![Release](https://img.shields.io/github/release/zeruniverse/QQParking.svg)
-![Environment](https://img.shields.io/badge/python-2.6, 2.7-blue.svg)
+![Environment](https://img.shields.io/badge/python-2.6,2.7-blue.svg)
 ![License](https://img.shields.io/github/license/zeruniverse/QQParking.svg)      
-***该项目修改自[QQRobot](https://github.com/zeruniverse/QQRobot)这一项目***，用于挂QQ  
+**该项目修改自[QQRobot](https://github.com/zeruniverse/QQRobot)这一项目**，用于挂QQ  
 当收到私聊或临时对话时先回复离开信息，接下来由AI与用户聊天。记录用户发送的留言并邮件提醒  
-点[这里](https://github.com/zeruniverse/QQParking/releases/tag/2.3)可以下载不带邮件功能的版本。  
+~~点[这里](https://github.com/zeruniverse/QQParking/releases/tag/2.3)可以下载不带邮件功能的版本。~~  
 登陆时采用QQ安全中心的二维码做为登陆条件, 不需要在程序里输入QQ号码及QQ密码。   
   
 **请帮忙分析Android QQ协议**：此项目现已稳定，在更新协议前不会有大更新。希望有人能跟我一起搞手机QQ协议，SmartQQ协议稳定性不是很理想。  
@@ -28,14 +28,14 @@ QQ下线需要重新登录提醒：
 （对应错误）  
 <img width="483" alt="capture6" src="https://cloud.githubusercontent.com/assets/4648756/9015680/624ed478-377f-11e5-893a-3dea56d8efe9.PNG">  
   
-##RELEASE    
-5.1挂机版本 (带预配置文件)：[点击下载](https://github.com/zeruniverse/QQParking/releases/tag/5.1)  
+## RELEASE    
+最新挂机版：[点击下载](https://github.com/zeruniverse/QQParking/releases/latest)  
 ~~5.0.1 WINDOWS EXE 32位: [点击下载](https://github.com/zeruniverse/QQParking/releases/tag/w5.0.1)~~  
 ~~无邮件提醒功能版本 (带预配置文件，可直接运行)： [点击下载](https://github.com/zeruniverse/QQParking/releases/tag/2.3)~~  
   
-##如何使用
+## 如何使用
 + 从http://www.tuling123.com/openapi/ 申请一个API KEY(免费，5000次/天)
-+ 将QQBot.py的第36-43行改为你的参数。接收邮箱请使用你的常用邮箱，发送邮箱建议网易126邮箱（已测试可用）,输入用户名，密码及对应SMTP服务器  
++ 将QQBot.py的第23-28行改为你的参数。接收邮箱请使用你的常用邮箱，发送邮箱建议网易126邮箱（已测试可用）,输入用户名，密码及对应SMTP服务器  
 + 如果您使用126邮箱，请在126邮箱-设置中开启smtp，并将SMTP专用密码（不是登陆密码）输入程序。开启smtp需要手机验证
 + ```nohup python2 QQBot.py >qbot.log&```
 + ```ls```
@@ -48,7 +48,7 @@ SMTP密码： uyyxdrzrrxntidkh
 邮箱和TULING KEY登陆密码：kidAi%u2^JSP9*.x  
 TULING KEY 注册邮箱：qqparking@126.com  
 
-##功能
+## 功能
 
 + 私聊自动回复，某QQ号第一次触发私聊时回复离开信息
 
@@ -63,7 +63,7 @@ TULING KEY 注册邮箱：qqparking@126.com
 
 
 
-##其它
+## 其它
 
 + ~~如果需要不带邮件提示功能的版本，请下载这个: https://github.com/zeruniverse/QQParking/releases/tag/2.3~~  
 
