@@ -16,7 +16,7 @@ This project is a chatting robot in QQ, implemented in Python. The purpose of th
 
 [Here](https://github.com/zeruniverse/QQRobot) is a similar project supporting both group chatting and private chatting but only used for fun.  
 
-##运行截图  
+## 运行截图  
 <img width="533" alt="capture" src="https://cloud.githubusercontent.com/assets/4648756/9015609/ee46e016-377e-11e5-83c7-9346d811a664.PNG">  
 <img width="534" alt="capture1" src="https://cloud.githubusercontent.com/assets/4648756/9015624/fd96946c-377e-11e5-980d-a50f6aa5b663.PNG">  
 执行上一步后收到留言邮件提示：  
