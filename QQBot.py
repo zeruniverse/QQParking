@@ -797,6 +797,7 @@ if __name__ == "__main__":
     except:
         pass
     errortime=0
+    logging.info("发送下线邮件...")
     while errortime<5:
         errortime=errortime+1
         if sendfailmail():
